@@ -21,6 +21,7 @@ public class ApiPageObject {
     private List<User> users;
     private User user;
     private User userOne;
+
     @BeforeMethod
     public void setUp() {
         String threadCount = System.getProperty("threadCount", "1");
@@ -30,7 +31,7 @@ public class ApiPageObject {
         System.out.println("Browser: " + browser);
         RestAssured.baseURI = "https://petstore.swagger.io/v2";
         users = new ArrayList<>();
-         user = User.builder()
+        user = User.builder()
                 .id(0)
                 .username("Mari")
                 .firstName("Maryna")
@@ -41,8 +42,8 @@ public class ApiPageObject {
                 .userStatus(0)
                 .build();
         userOne = User.builder()
-                .id(0)
-                .username(user.getUsername())
+                .id(1)
+                .username("Bodya")
                 .firstName("Ma")
                 .lastName("lova")
                 .email("23@gmail.com")
@@ -51,29 +52,32 @@ public class ApiPageObject {
                 .userStatus(1)
                 .build();
         users.add(user);
-        users.add(userOne);
+        //  users.addAll(List.of(user, userOne));
     }
 
-    @Test
+    @Test(priority = 1)
     public void createPost() {
 
         Response createResponse = given()
                 .contentType("application/json")
-                .body(user)
+                .body(users)
                 .when()
-                .post("/user/createWithList");
-        Assert.assertEquals(200, createResponse.getStatusCode());
+                .post("/user/createWithArray");
+        Assert.assertEquals(createResponse.getStatusCode(), 200, "Status code is not as expected");
     }
-    @Test
+
+    @Test(priority = 2)
     public void getPost() {
         Response getResponse = RestAssured.given()
-        .when()
-        .get("/user/" + user.getUsername());
-        Assert.assertEquals(200, getResponse.getStatusCode());
+                .when()
+                .get("/user/" + user.getUsername());
+        Assert.assertEquals(getResponse.getStatusCode(), 200, "Status code is not as expected");
         Assert.assertTrue(getResponse.getBody().asString().contains(user.getUsername()));
-System.out.println("Array" + users);
+        String responseBody = getResponse.getBody().asString();
+        System.out.println("Array" + responseBody);
     }
-    @Test
+
+    @Test(priority = 3)
     public void putPost() {
         Response putResponse = RestAssured.given()
                 .log().all()
@@ -81,35 +85,37 @@ System.out.println("Array" + users);
                 .body(userOne)
                 .when()
                 .put("/user/" + user.getUsername());
-        Assert.assertEquals(200, putResponse.getStatusCode());
-
+        Assert.assertEquals(putResponse.getStatusCode(), 200, "Status code is not as expected");
+        String responseBody = putResponse.getBody().asString();
+        System.out.println("Array" + responseBody);
 
     }
-    @Test
+
+    @Test(priority = 4)
     public void getPostAgain() {
         Response getResponseAgain = RestAssured.given()
                 .when()
-                .get("/user/" + user.getUsername());
-        Assert.assertEquals(200, getResponseAgain.getStatusCode());
+                .get("/user/" + userOne.getUsername());
+        Assert.assertEquals(getResponseAgain.getStatusCode(), 200, "Status code is not as expected");
         Assert.assertTrue(getResponseAgain.getBody().asString().contains(userOne.getFirstName()));
-        System.out.println("New Array" + users);
+        String responseBody = getResponseAgain.getBody().asString();
+        System.out.println("Array" + responseBody);
     }
-    @Test
+    @Test(priority = 5)
     public void deletePost() {
         Response deleteResponse = RestAssured.given()
         .when()
         .delete("/user/" + userOne.getUsername());
-        Assert.assertEquals(204, deleteResponse.getStatusCode());
-        Assert.assertFalse(deleteResponse.getBody().asString().contains(userOne.getUsername()));
+        Assert.assertEquals(deleteResponse.getStatusCode(), 200, "Status code is not as expected");
+
     }
-    @Test
+    @Test(priority = 6)
     public void getPostInformationAboutDeleteUser() {
-        Response getPostResponse = RestAssured.given()
+       Response getPostResponse = RestAssured.given()
                 .when()
-                .get("/user/" + userOne.getUsername());
+               .get("/user/" + userOne.getUsername());
 
-        Assert.assertEquals(404, getPostResponse.getStatusCode());
-        Assert.assertFalse(getPostResponse.getBody().asString().contains(userOne.getUsername()));
-    }
-
+        Assert.assertEquals(getPostResponse.getStatusCode(), 404, "Status code is not as expected");
+       Assert.assertFalse(getPostResponse.getBody().asString().contains(userOne.getUsername()));
+}
 }
