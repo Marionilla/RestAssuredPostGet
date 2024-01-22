@@ -1,0 +1,10 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+
+<suite name="Parallel Testing Suite" parallel="methods">
+    <test name="ParallelTests" thread-count="5">
+        <classes>
+            <class name="com.pet.proj.tests.ApiPageTestObject" />
+        </classes>
+    </test>
+
+</suite>
